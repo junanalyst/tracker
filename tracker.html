@@ -18,7 +18,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--black);color:var(--text);font-family:var(--fb);font-size:15px;max-width:480px;margin:0 auto;min-height:100vh;}
- 
+
 /* SETUP */
 #setup{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
 .setup-box{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:40px 28px;}
@@ -31,27 +31,27 @@ body{background:var(--black);color:var(--text);font-family:var(--fb);font-size:1
 .s-row .s-input{margin-bottom:0;}
 .s-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:var(--r);padding:16px;font-family:var(--fh);font-size:17px;font-weight:800;cursor:pointer;margin-top:8px;}
 .s-btn:active{background:var(--accent-dark);}
- 
+
 /* APP */
 #app{display:none;}
 .main{padding:20px 16px 84px;}
- 
+
 /* BOTTOM NAV */
 .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border2);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px);}
 .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border:none;background:none;color:var(--text3);cursor:pointer;gap:3px;font-size:10px;font-family:var(--fb);}
 .bnav-btn.active{color:var(--accent);}
 .bnav-icon{font-size:20px;line-height:1;}
- 
+
 /* PAGE */
 .page{display:none;}
 .page.active{display:block;}
 .page-title{font-family:var(--fh);font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
 .page-sub{color:var(--text2);font-size:13px;margin-bottom:20px;line-height:1.5;}
- 
+
 /* CARDS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:14px;}
 .card-title{font-family:var(--fm);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
- 
+
 /* STATS */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;}
@@ -59,7 +59,7 @@ body{background:var(--black);color:var(--text);font-family:var(--fb);font-size:1
 .stat-val{font-family:var(--fh);font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1;}
 .stat-unit{font-size:11px;color:var(--text2);font-weight:400;margin-left:2px;}
 .stat-sub{font-size:11px;color:var(--text2);margin-top:4px;}
- 
+
 /* FORM */
 .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
 .form-label{font-size:11px;color:var(--text2);font-family:var(--fm);}
@@ -67,7 +67,7 @@ input,select,textarea{background:var(--surface2);border:1px solid var(--border2)
 input:focus,select:focus,textarea:focus{border-color:var(--accent);}
 textarea{resize:vertical;min-height:90px;line-height:1.5;}
 select option{background:var(--surface2);}
- 
+
 /* BUTTONS */
 .btn{padding:14px 20px;border-radius:var(--r);border:none;cursor:pointer;font-size:15px;font-weight:500;transition:all .15s;width:100%;display:block;text-align:center;font-family:var(--fb);}
 .btn-primary{background:var(--accent);color:#000;}
@@ -75,7 +75,7 @@ select option{background:var(--surface2);}
 .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
 .btn-danger{background:transparent;color:var(--red);border:1px solid rgba(255,90,90,0.3);}
- 
+
 /* AI RESULT */
 .ai-result{background:var(--surface2);border:1px solid rgba(200,245,66,0.2);border-radius:var(--r2);padding:18px;margin-top:14px;display:none;}
 .ai-result.show{display:block;}
@@ -94,7 +94,7 @@ select option{background:var(--surface2);}
 .food-row{display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;background:var(--surface);border-radius:8px;}
 .food-row-name{color:var(--text2);}
 .food-row-cal{font-family:var(--fm);color:var(--accent);}
- 
+
 /* LOG LIST */
 .log-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface2);border-radius:var(--r);margin-bottom:8px;border:1px solid var(--border);}
 .log-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
@@ -109,10 +109,10 @@ select option{background:var(--surface2);}
 .meal-LUNCH{background:rgba(90,255,212,0.1);color:var(--teal);}
 .meal-DINNER{background:rgba(90,180,255,0.1);color:var(--blue);}
 .meal-SNACK{background:rgba(200,245,66,0.1);color:var(--accent);}
- 
+
 /* HINT */
 .hint{font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:10px;padding:10px 12px;background:var(--surface2);border-radius:var(--r);border-left:3px solid var(--accent);}
- 
+
 /* GOAL */
 .goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
 .g-opt{padding:18px 12px;border-radius:var(--r2);border:2px solid var(--border);cursor:pointer;background:var(--surface2);text-align:center;transition:all .2s;}
@@ -123,7 +123,7 @@ select option{background:var(--surface2);}
 .dur-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
 .dur-btn{padding:12px 6px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;font-size:13px;text-align:center;transition:all .15s;}
 .dur-btn.sel{border-color:var(--accent);color:var(--accent);background:rgba(200,245,66,0.08);}
- 
+
 /* INBODY */
 .inbody-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
 .ib-field{display:flex;flex-direction:column;gap:5px;}
@@ -133,20 +133,20 @@ select option{background:var(--surface2);}
 .ib-unit{font-size:11px;color:var(--text2);}
 .trend-d{color:var(--teal);font-size:11px;margin-top:2px;}
 .trend-u{color:var(--red);font-size:11px;margin-top:2px;}
- 
+
 /* ANALYTICS */
 .tabs{display:flex;gap:4px;background:var(--surface2);border-radius:var(--r);padding:4px;margin-bottom:16px;}
 .tab{flex:1;padding:9px 4px;border-radius:8px;border:none;background:none;color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;}
 .tab.active{background:var(--surface);color:var(--text);font-weight:500;}
 .chart-wrap{position:relative;height:200px;}
- 
+
 /* RING */
 .ring-wrap{display:flex;align-items:center;gap:18px;}
 .ring-svg{transform:rotate(-90deg);flex-shrink:0;}
 .ring-pct{font-family:var(--fh);font-size:36px;font-weight:800;}
 .ring-label{font-size:13px;color:var(--text2);margin-top:2px;}
 .ring-days{font-size:12px;color:var(--text3);margin-top:6px;font-family:var(--fm);}
- 
+
 /* MISC */
 .empty{text-align:center;padding:40px 20px;color:var(--text3);}
 .empty-icon{font-size:32px;margin-bottom:10px;}
@@ -158,7 +158,7 @@ select option{background:var(--surface2);}
 </style>
 </head>
 <body>
- 
+
 <!-- SETUP -->
 <div id="setup">
   <div class="setup-box">
@@ -176,11 +176,11 @@ select option{background:var(--surface2);}
     <button class="s-btn" onclick="startApp()">시작하기 →</button>
   </div>
 </div>
- 
+
 <!-- APP -->
 <div id="app">
 <div class="main">
- 
+
   <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
     <div class="page-title" id="dash-greet">안녕하세요 👋</div>
@@ -194,7 +194,7 @@ select option{background:var(--surface2);}
     <div class="card"><div class="card-title">목표 진행률</div><div id="dash-goal-ring"><div class="empty"><div class="empty-icon">🎯</div><div class="empty-text">목표를 설정해보세요</div></div></div></div>
     <div class="card"><div class="card-title">오늘 기록</div><div id="dash-logs"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">오늘 기록이 없어요</div></div></div></div>
   </div>
- 
+
   <!-- DIET -->
   <div class="page" id="page-diet">
     <div class="page-title">식단 기록</div>
@@ -222,7 +222,7 @@ select option{background:var(--surface2);}
     </div>
     <div class="card"><div class="card-title">최근 기록</div><div id="diet-log-list"><div class="empty"><div class="empty-icon">🥗</div><div class="empty-text">아직 기록이 없어요</div></div></div></div>
   </div>
- 
+
   <!-- WORKOUT -->
   <div class="page" id="page-workout">
     <div class="page-title">운동 기록</div>
@@ -246,7 +246,7 @@ select option{background:var(--surface2);}
     </div>
     <div class="card"><div class="card-title">최근 기록</div><div id="workout-log-list"><div class="empty"><div class="empty-icon">🏋️</div><div class="empty-text">아직 기록이 없어요</div></div></div></div>
   </div>
- 
+
   <!-- INBODY -->
   <div class="page" id="page-inbody">
     <div class="page-title">인바디 기록</div>
@@ -270,7 +270,7 @@ select option{background:var(--surface2);}
     </div>
     <div class="card"><div class="card-title">측정 기록</div><div id="inbody-list"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">아직 기록이 없어요</div></div></div></div>
   </div>
- 
+
   <!-- ANALYTICS -->
   <div class="page" id="page-analytics">
     <div class="page-title">분석</div>
@@ -304,7 +304,7 @@ select option{background:var(--surface2);}
       </div>
     </div>
   </div>
- 
+
   <!-- GOAL -->
   <div class="page" id="page-goal">
     <div class="page-title">목표 설정</div>
@@ -339,9 +339,9 @@ select option{background:var(--surface2);}
       </div>
     </div>
   </div>
- 
+
 </div><!-- /main -->
- 
+
 <nav class="bnav">
   <button class="bnav-btn active" onclick="showPage('dashboard')" id="bnav-dashboard"><div class="bnav-icon">📊</div>홈</button>
   <button class="bnav-btn" onclick="showPage('diet')" id="bnav-diet"><div class="bnav-icon">🥗</div>식단</button>
@@ -351,9 +351,9 @@ select option{background:var(--surface2);}
   <button class="bnav-btn" onclick="showPage('goal')" id="bnav-goal"><div class="bnav-icon">🎯</div>목표</button>
 </nav>
 </div><!-- /app -->
- 
+
 <div id="toast"></div>
- 
+
 <script>
 // ══════════════════════════════════════════
 // ⚠️  API 키는 GitHub Actions가 빌드 시 자동 주입합니다
@@ -361,17 +361,17 @@ select option{background:var(--surface2);}
 //     GitHub 저장소 → Settings → Secrets → GEMINI_API_KEY 에 등록
 // ══════════════════════════════════════════
 const GEMINI_KEY = '__GEMINI_API_KEY__';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_KEY}`;
- 
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_KEY}`;
+
 // ── STATE ──
 let APP={user:{},goal:null,dietLogs:[],workoutLogs:[],inbodyLogs:[]};
 let dietAnalysis=null, workoutAnalysis=null;
 let goalType='DIET', goalDur=4;
 let CH={};
- 
+
 function save(){localStorage.setItem('tracker_v5',JSON.stringify(APP));}
 function load(){const d=localStorage.getItem('tracker_v5');if(d)APP=JSON.parse(d);}
- 
+
 // ── SETUP ──
 function startApp(){
   const name=document.getElementById('s-name').value.trim();
@@ -385,7 +385,7 @@ function startApp(){
   document.getElementById('app').style.display='block';
   initApp();
 }
- 
+
 function initApp(){
   const today=new Date().toISOString().split('T')[0];
   ['diet-date','workout-date','ib-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
@@ -393,7 +393,7 @@ function initApp(){
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
   renderDashboard();renderDietLogs();renderWorkoutLogs();renderInbodyList();renderGoalPage();
 }
- 
+
 // ── NAV ──
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -405,7 +405,7 @@ function showPage(id){
   if(id==='goal')renderGoalPage();
   window.scrollTo(0,0);
 }
- 
+
 // ── GEMINI AI ──
 async function callGemini(prompt){
   const res=await fetch(GEMINI_URL,{
@@ -425,7 +425,7 @@ async function callGemini(prompt){
   const clean=text.replace(/```json|```/g,'').trim();
   return JSON.parse(clean);
 }
- 
+
 // ── DIET ANALYSIS ──
 async function analyzeDiet(){
   const input=document.getElementById('diet-input').value.trim();
@@ -437,16 +437,16 @@ async function analyzeDiet(){
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 칼로리를 분석 중이에요...</div>`;
   try{
     const prompt=`당신은 전문 영양사입니다. 사용자가 먹은 음식을 분석해주세요.
- 
+
 입력: "${input}"
 사용자 정보: 체중 ${APP.user.weight}kg, ${APP.user.gender==='male'?'남성':'여성'}, ${APP.user.age}세
 목표: ${APP.goal?APP.goal.type==='DIET'?'다이어트 (칼로리 감량)':'벌크업 (근육 증량)':'없음'}
- 
+
 분석 시 주의사항:
 - 입력된 양(스푼, 한줌, 인분 등)을 실제 그램으로 환산해서 계산하세요
 - 불명확한 양은 일반적인 1인분 기준으로 계산하세요
 - 모든 음식(패스트푸드, 한식, 양식 등)을 정확하게 분석하세요
- 
+
 반드시 아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
 {"estimatedCalories":숫자,"estimatedProtein":소수,"estimatedCarbs":소수,"estimatedFat":소수,"foods":[{"name":"음식명","amount":"환산된 양","calories":숫자}],"summary":"한 줄 요약","advice":"목표에 맞는 짧은 조언"}`;
     dietAnalysis=await callGemini(prompt);
@@ -469,7 +469,7 @@ async function analyzeDiet(){
   }
   btn.disabled=false;btn.textContent='🤖 AI 칼로리 분석';
 }
- 
+
 // ── WORKOUT ANALYSIS ──
 async function analyzeWorkout(){
   const input=document.getElementById('workout-input').value.trim();
@@ -481,17 +481,17 @@ async function analyzeWorkout(){
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 소모 칼로리를 분석 중이에요...</div>`;
   try{
     const prompt=`당신은 전문 퍼스널 트레이너입니다. 사용자의 운동 기록을 분석해서 소모 칼로리를 계산해주세요.
- 
+
 입력: "${input}"
 사용자 정보: 체중 ${APP.user.weight}kg, ${APP.user.gender==='male'?'남성':'여성'}, ${APP.user.age}세
 목표: ${APP.goal?APP.goal.type==='DIET'?'다이어트':'벌크업':'없음'}
- 
+
 분석 시 주의사항:
 - 웨이트 트레이닝은 무게(kg), 횟수(reps), 세트수를 모두 반영해서 정확하게 계산하세요
 - 유산소 운동은 시간과 강도를 반영하세요
 - 실제 운동 생리학 데이터를 기반으로 계산하세요
 - 사용자 체중을 반드시 반영하세요
- 
+
 반드시 아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
 {"estimatedCalories":숫자,"workoutType":"근력운동|유산소|복합운동","muscleGroups":["부위1","부위2"],"duration":예상분,"intensity":"저강도|중강도|고강도","exercises":[{"name":"운동명","detail":"세트 정보","calories":숫자}],"summary":"한 줄 요약","advice":"짧은 조언"}`;
     workoutAnalysis=await callGemini(prompt);
@@ -515,7 +515,7 @@ async function analyzeWorkout(){
   }
   btn.disabled=false;btn.textContent='🤖 AI 소모 칼로리 분석';
 }
- 
+
 // ── SAVE ──
 function saveDiet(){
   if(!dietAnalysis)return;
@@ -527,7 +527,7 @@ function saveDiet(){
   document.getElementById('diet-save-btn').style.display='none';
   renderDietLogs();showToast('식단 저장 완료! 🥗','success');
 }
- 
+
 function saveWorkout(){
   if(!workoutAnalysis)return;
   const d=workoutAnalysis;
@@ -538,7 +538,7 @@ function saveWorkout(){
   document.getElementById('workout-save-btn').style.display='none';
   renderWorkoutLogs();showToast('운동 저장 완료! 🏋️','success');
 }
- 
+
 function saveInbody(){
   const w=document.getElementById('ib-weight').value;
   if(!w){showToast('체중을 입력해주세요','error');return;}
@@ -547,10 +547,10 @@ function saveInbody(){
   ['ib-weight','ib-fatpct','ib-muscle','ib-fatkg','ib-bmi','ib-bmr','ib-visceral','ib-water','ib-bone','ib-memo'].forEach(id=>document.getElementById(id).value='');
   renderInbodyList();showToast('인바디 저장 완료! 📋','success');
 }
- 
+
 // ── RENDER ──
 const ML={BREAKFAST:'아침',LUNCH:'점심',DINNER:'저녁',SNACK:'간식'};
- 
+
 function renderDietLogs(){
   const el=document.getElementById('diet-log-list');
   if(!APP.dietLogs.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🥗</div><div class="empty-text">아직 기록이 없어요</div></div>`;return;}
@@ -567,7 +567,7 @@ function renderDietLogs(){
       </div>
     </div>`).join('');
 }
- 
+
 function renderWorkoutLogs(){
   const el=document.getElementById('workout-log-list');
   if(!APP.workoutLogs.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🏋️</div><div class="empty-text">아직 기록이 없어요</div></div>`;return;}
@@ -584,7 +584,7 @@ function renderWorkoutLogs(){
       </div>
     </div>`).join('');
 }
- 
+
 function renderInbodyList(){
   const el=document.getElementById('inbody-list');
   if(!APP.inbodyLogs.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">아직 기록이 없어요</div></div>`;return;}
@@ -604,7 +604,7 @@ function renderInbodyList(){
     </div>`;
   }).join('');
 }
- 
+
 function renderDashboard(){
   const today=new Date().toISOString().split('T')[0];
   const diet=APP.dietLogs.filter(l=>l.date===today);
@@ -629,7 +629,7 @@ function renderDashboard(){
     :`<div class="log-item"><div class="log-icon" style="background:rgba(90,180,255,0.1)">🏋️</div><div class="log-info"><div class="log-name">${l.rawInput.slice(0,26)}...</div><div class="log-meta">${l.workoutType||'운동'}${l.duration?' · '+l.duration+'분':''}</div></div><div class="log-right"><div class="log-cal" style="color:var(--blue)">−${l.estimatedCalories} kcal</div></div></div>`
   ).join('');
 }
- 
+
 function renderDashGoal(){
   const el=document.getElementById('dash-goal-ring');
   if(!APP.goal){el.innerHTML=`<div class="empty"><div class="empty-icon">🎯</div><div class="empty-text">목표를 설정해보세요</div></div>`;return;}
@@ -639,12 +639,12 @@ function renderDashGoal(){
   const dl=g.durationWeeks<=3?g.durationWeeks+'주':g.durationWeeks===4?'1달':g.durationWeeks===8?'2달':g.durationWeeks===12?'3달':g.durationWeeks+'주';
   el.innerHTML=`<div class="ring-wrap"><svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8"/><circle cx="40" cy="40" r="32" fill="none" stroke="#c8f542" stroke-width="8" stroke-dasharray="${(2*Math.PI*32).toFixed(2)}" stroke-dashoffset="${(2*Math.PI*32*(1-pct/100)).toFixed(2)}" stroke-linecap="round"/></svg><div><div class="ring-pct">${pct}%</div><div class="ring-label">${g.type==='DIET'?'다이어트':'벌크업'} ${dl}</div><div class="ring-days">D-${remain} · ${new Date(g.endDate).toLocaleDateString('ko-KR')} 종료</div></div></div>`;
 }
- 
+
 // ── DELETE ──
 function delDiet(id){APP.dietLogs=APP.dietLogs.filter(l=>l.id!==id);save();renderDietLogs();renderDashboard();showToast('삭제되었습니다');}
 function delWorkout(id){APP.workoutLogs=APP.workoutLogs.filter(l=>l.id!==id);save();renderWorkoutLogs();renderDashboard();showToast('삭제되었습니다');}
 function delInbody(id){APP.inbodyLogs=APP.inbodyLogs.filter(l=>l.id!==id);save();renderInbodyList();showToast('삭제되었습니다');}
- 
+
 // ── GOAL ──
 function selGoalType(t){goalType=t;document.getElementById('gopt-diet').classList.toggle('sel',t==='DIET');document.getElementById('gopt-bulk').classList.toggle('sel',t==='BULK');}
 function selDur(w){goalDur=w;document.querySelectorAll('.dur-btn').forEach((b,i)=>{const v=[1,2,3,4,6,8,12,24];b.classList.toggle('sel',v[i]===w);});}
@@ -662,7 +662,7 @@ function renderGoalPage(){
   const dl=g.durationWeeks<=3?g.durationWeeks+'주':g.durationWeeks===4?'1달':g.durationWeeks===8?'2달':g.durationWeeks===12?'3달':g.durationWeeks+'주';
   document.getElementById('goal-current-info').innerHTML=`<div style="display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--text2)"><div>유형: <b style="color:var(--text)">${g.type==='DIET'?'🥗 다이어트':'💪 벌크업'}</b></div><div>기간: <b style="color:var(--text)">${dl}</b></div><div>종료일: <b style="color:var(--text)">${new Date(g.endDate).toLocaleDateString('ko-KR')}</b></div>${g.targetWeight?`<div>목표 체중: <b style="color:var(--accent)">${g.targetWeight}kg</b></div>`:''}${g.targetCalories?`<div>일일 목표 칼로리: <b style="color:var(--accent)">${g.targetCalories} kcal</b></div>`:''}${g.targetProtein?`<div>일일 목표 단백질: <b style="color:var(--accent)">${g.targetProtein}g</b></div>`:''}</div>`;
 }
- 
+
 // ── ANALYTICS ──
 function switchTab(id,btn){
   ['calorie','body','export'].forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'block':'none');
@@ -691,7 +691,7 @@ function renderBodyCharts(){
   if(CH.comp)CH.comp.destroy();
   CH.comp=new Chart(document.getElementById('compChart'),{type:'line',data:{labels:lb,datasets:[{label:'체지방률(%)',data:s.map(l=>l.bodyFatPercent),borderColor:'#ff5a5a',backgroundColor:'transparent',tension:0.4,pointBackgroundColor:'#ff5a5a',pointRadius:4,borderDash:[4,3]},{label:'골격근량(kg)',data:s.map(l=>l.muscleMass),borderColor:'#5ab4ff',backgroundColor:'transparent',tension:0.4,pointBackgroundColor:'#5ab4ff',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#888884',padding:12,font:{size:11}}}},scales:{x:{ticks:{color:'#888884',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#888884',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
 }
- 
+
 // ── EXPORT ──
 function exportCSV(type){
   let content,filename;
@@ -703,11 +703,11 @@ function exportCSV(type){
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
   showToast('다운로드 시작!','success');
 }
- 
+
 // ── TOAST ──
 let tt;
 function showToast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+(type||'');clearTimeout(tt);tt=setTimeout(()=>el.className='',2800);}
- 
+
 // ── BOOT ──
 load();
 if(APP.user&&APP.user.name){
