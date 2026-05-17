@@ -486,17 +486,16 @@ function extractJSON(text){
   throw new Error('AI 응답을 파싱할 수 없어요. 다시 시도해주세요.');
 }
 
-async function callGemini(prompt){
+async function callGemini(prompt, retry=0){
   const key=localStorage.getItem('tracker_or_key')||'';
   if(!key){throw new Error('API 키가 없어요. ⚙️ 설정 → 초기화 후 다시 설정해주세요.');}
 
-  // responseMimeType 없이 요청 (더 안정적)
   const res=await fetch(GEMINI_URL(key),{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature:0.2,maxOutputTokens:1200}
+      generationConfig:{temperature:0.1,maxOutputTokens:1500}
     })
   });
 
@@ -504,13 +503,23 @@ async function callGemini(prompt){
     const e=await res.json().catch(()=>({}));
     const msg=e.error?.message||'';
     if(res.status===400)throw new Error('API 키가 유효하지 않아요. 설정에서 확인해주세요.');
-    if(res.status===429)throw new Error('요청 한도 초과예요. 잠시 후 다시 시도해주세요.');
+    if(res.status===429)throw new Error('요청 한도 초과예요. 1~2분 후 다시 시도해주세요.');
     throw new Error(msg||`API 오류 (${res.status})`);
   }
 
   const data=await res.json();
   const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-  return extractJSON(text);
+
+  try{
+    return extractJSON(text);
+  }catch(e){
+    // 파싱 실패 시 1회 재시도 (프롬프트에 더 강하게 명시)
+    if(retry<1){
+      const retryPrompt=prompt+'\n\nIMPORTANT: Your previous response could not be parsed. You MUST respond with ONLY a valid JSON object. No text before or after the JSON. Start immediately with { and end with }.';
+      return callGemini(retryPrompt, retry+1);
+    }
+    throw e;
+  }
 }
 
 // ── DIET ANALYSIS ──
@@ -523,14 +532,20 @@ async function analyzeDiet(){
   res.className='ai-result show';
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 칼로리를 분석 중이에요...</div>`;
   try{
-    const prompt=`You are a professional nutritionist. Analyze the food input below and respond with ONLY a raw JSON object. Do not include any markdown formatting, code blocks, backticks, or explanations. Start your response directly with { and end with }.
+    const prompt=`You are an expert nutritionist AI. The user has written their meal in natural Korean or mixed language — accept ANY format, abbreviation, typo, fraction, or informal expression.
 
-Food input: "${input}"
-User info: weight=${APP.user.weight}kg, gender=${APP.user.gender}, age=${APP.user.age}
-Goal: ${APP.goal?APP.goal.type==='DIET'?'diet/lose weight':'bulk up/gain muscle':'not set'}
+User input: "${input}"
+User: ${APP.user.weight}kg, ${APP.user.gender==='male'?'male':'female'}, ${APP.user.age}yo
+Goal: ${APP.goal?APP.goal.type==='DIET'?'diet/lose weight':'bulk up/gain muscle':'none'}
 
-Required JSON format (respond ONLY with this, no other text):
-{"estimatedCalories":number,"estimatedProtein":number,"estimatedCarbs":number,"estimatedFat":number,"foods":[{"name":"Korean food name","amount":"Korean amount description","calories":number}],"summary":"한 줄 요약 (한국어)","advice":"목표에 맞는 짧은 조언 (한국어)"}`;
+Rules:
+- Accept ANY food description: fractions (1/3공기), handfuls (한줌), spoons (스푼), pieces (알, 개), informal names, brand names, mixed Korean/English
+- If amount is unclear, use a typical serving size — never fail due to ambiguous quantity
+- Estimate calories generously and accurately based on Korean food database
+- Always return all 4 macros even if estimated
+- CRITICAL: respond with ONLY raw JSON starting with { and ending with }, no markdown, no explanation
+
+{"estimatedCalories":number,"estimatedProtein":number,"estimatedCarbs":number,"estimatedFat":number,"foods":[{"name":"음식명","amount":"양 설명","calories":number}],"summary":"한 줄 요약","advice":"짧은 조언"}`;
 
     dietAnalysis=await callGemini(prompt);
     const d=dietAnalysis;
@@ -564,14 +579,22 @@ async function analyzeWorkout(){
   res.className='ai-result show';
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 소모 칼로리를 분석 중이에요...</div>`;
   try{
-    const prompt=`You are a professional personal trainer. Analyze the workout below and respond with ONLY a raw JSON object. Do not include any markdown formatting, code blocks, backticks, or explanations. Start your response directly with { and end with }.
+    const prompt=`You are an expert personal trainer AI. The user has written their workout in natural Korean or mixed format — accept ANY style, structure, or notation.
 
-Workout input: "${input}"
-User info: weight=${APP.user.weight}kg, gender=${APP.user.gender}, age=${APP.user.age}
-Goal: ${APP.goal?APP.goal.type==='DIET'?'diet':'bulk up':'not set'}
+User input: "${input}"
+User: ${APP.user.weight}kg, ${APP.user.gender==='male'?'male':'female'}, ${APP.user.age}yo
+Goal: ${APP.goal?APP.goal.type==='DIET'?'diet':'bulk up':'none'}
 
-Required JSON format (respond ONLY with this, no other text):
-{"estimatedCalories":number,"workoutType":"근력운동 or 유산소 or 복합운동","muscleGroups":["한국어 근육 부위"],"duration":number,"intensity":"저강도 or 중강도 or 고강도","exercises":[{"name":"운동명 (한국어)","detail":"세트/횟수/무게 설명 (한국어)","calories":number}],"summary":"한 줄 요약 (한국어)","advice":"짧은 조언 (한국어)"}`;
+Rules:
+- Accept ANY workout format: multiple weights per exercise, pyramid sets, drop sets, supersets, cardio, stretching
+- Examples of valid inputs: "벤치 20kg 10회, 40kg 10회, 60kg 8회" / "숄더프레스 5set 20x30 30x18 40x8" / "런닝 30분 + 스쿼트 100kg 5x5"
+- Typos in reps (rpe→rep) or weights are fine — interpret generously
+- Calculate total calories burned based on all sets combined, user weight, and exercise intensity
+- For weight training: use MET values and total volume (sets × reps × weight)
+- Always fill in duration estimate even if not stated
+- CRITICAL: respond with ONLY raw JSON starting with { and ending with }, no markdown, no explanation
+
+{"estimatedCalories":number,"workoutType":"근력운동 or 유산소 or 복합운동","muscleGroups":["부위"],"duration":number,"intensity":"저강도 or 중강도 or 고강도","exercises":[{"name":"운동명","detail":"세트/횟수/무게 요약","calories":number}],"summary":"한 줄 요약","advice":"짧은 조언"}`;
 
     workoutAnalysis=await callGemini(prompt);
     const d=workoutAnalysis;
