@@ -1,4 +1,4 @@
-yamlname: Deploy TRACKER to GitHub Pages
+name: Deploy TRACKER to GitHub Pages
 
 on:
   push:
