@@ -173,9 +173,9 @@ select option{background:var(--surface2);}
     </div>
     <div class="s-label">나이</div>
     <input class="s-input" id="s-age" type="number" placeholder="28" inputmode="numeric">
-    <div class="s-label" style="margin-top:4px">OpenRouter API 키</div>
-    <input class="s-input" id="s-orkey" type="password" placeholder="sk-or-...">
-    <div style="font-size:11px;color:var(--text3);margin-bottom:13px;line-height:1.6">openrouter.ai → Keys에서 무료 발급 · 이 기기에만 저장됩니다</div>
+    <div class="s-label" style="margin-top:4px">Gemini API 키</div>
+    <input class="s-input" id="s-orkey" type="password" placeholder="AIza...">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:13px;line-height:1.6">aistudio.google.com → API 키 → 새 프로젝트에서 발급 · 이 기기에만 저장됩니다</div>
     <button class="s-btn" onclick="startApp()">시작하기 →</button>
   </div>
 </div>
@@ -364,7 +364,7 @@ select option{background:var(--surface2);}
 //     소스코드에 절대 직접 입력하지 마세요!
 //     GitHub 저장소 → Settings → Secrets → GEMINI_API_KEY 에 등록
 // ══════════════════════════════════════════
-const OPENROUTER_KEY = localStorage.getItem('tracker_or_key')||'';
+const GEMINI_URL = (key) => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
 
 // ── STATE ──
 let APP={user:{},goal:null,dietLogs:[],workoutLogs:[],inbodyLogs:[]};
@@ -420,20 +420,13 @@ function showPage(id){
 
 async function callGemini(prompt){
   const key=localStorage.getItem('tracker_or_key')||'';
-  if(!key){throw new Error('API 키가 없어요. 앱을 재시작해서 키를 입력해주세요.');}
-  const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+  if(!key){throw new Error('API 키가 없어요. ⚙️ 초기화 후 다시 설정해주세요.');}
+  const res=await fetch(GEMINI_URL(key),{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':`Bearer ${key}`,
-      'HTTP-Referer':'https://junanalyst.github.io/tracker',
-      'X-Title':'TRACKER'
-    },
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
-      model:'google/gemini-2.0-flash-exp:free',
-      messages:[{role:'user',content:prompt}],
-      temperature:0.3,
-      max_tokens:1000
+      contents:[{parts:[{text:prompt}]}],
+      generationConfig:{temperature:0.3,maxOutputTokens:1000}
     })
   });
   if(!res.ok){
@@ -441,8 +434,7 @@ async function callGemini(prompt){
     throw new Error(e.error?.message||`API 오류 (${res.status})`);
   }
   const data=await res.json();
-  const text=data.choices?.[0]?.message?.content||'';
-  // JSON 블록 추출
+  const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
   const jsonMatch=text.match(/\{[\s\S]*\}/);
   if(!jsonMatch)throw new Error('AI 응답을 파싱할 수 없어요. 다시 시도해주세요.');
   return JSON.parse(jsonMatch[0]);
