@@ -486,16 +486,15 @@ function extractJSON(text){
   throw new Error('AI 응답을 파싱할 수 없어요. 다시 시도해주세요.');
 }
 
-async function geminiRaw(prompt, temperature=0.5, maxTokens=1500){
+async function geminiRaw(prompt, temperature=0.5, maxTokens=1500, forceJson=false){
   const key=localStorage.getItem('tracker_or_key')||'';
   if(!key)throw new Error('API 키가 없어요. ⚙️ 설정 → 초기화 후 다시 설정해주세요.');
+  const genConfig={temperature,maxOutputTokens:maxTokens};
+  if(forceJson)genConfig.responseMimeType='application/json';
   const res=await fetch(GEMINI_URL(key),{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature,maxOutputTokens:maxTokens}
-    })
+    body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:genConfig})
   });
   if(!res.ok){
     const e=await res.json().catch(()=>({}));
@@ -508,23 +507,23 @@ async function geminiRaw(prompt, temperature=0.5, maxTokens=1500){
   return data.candidates?.[0]?.content?.parts?.[0]?.text||'';
 }
 
-// 2단계 호출: 1단계(자유 분석) → 2단계(JSON 변환)
 async function callGemini(analyzePrompt, jsonSchema){
-  // 1단계: 형식 없이 자유롭게 분석
-  const analysis=await geminiRaw(analyzePrompt, 0.5, 1500);
+  // 1단계: 자유롭게 분석
+  const analysis=await geminiRaw(analyzePrompt, 0.5, 1500, false);
   if(!analysis)throw new Error('AI 응답이 없어요.');
 
-  // 2단계: 분석 결과를 JSON으로만 변환
-  const jsonPrompt=`Convert the following analysis result into a JSON object.
-Respond with ONLY the raw JSON. No markdown, no backticks, no explanation. Start with { end with }.
+  // 2단계: JSON으로만 변환 (responseMimeType 강제)
+  const jsonPrompt=`Based on this nutritional/workout analysis, return a JSON object matching the schema exactly.
 
 Analysis:
 ${analysis}
 
-Required JSON schema:
-${jsonSchema}`;
+JSON Schema:
+${jsonSchema}
 
-  const jsonText=await geminiRaw(jsonPrompt, 0.0, 1000);
+Return only the JSON object with all fields filled in with numbers and strings. No explanation.`;
+
+  const jsonText=await geminiRaw(jsonPrompt, 0.0, 800, true);
   return extractJSON(jsonText);
 }
 
