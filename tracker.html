@@ -457,19 +457,19 @@ async function analyzeDiet(){
   res.className='ai-result show';
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 칼로리를 분석 중이에요...</div>`;
   try{
-    const prompt=`당신은 전문 영양사입니다. 사용자가 먹은 음식을 분석해주세요.
+    const prompt=`You are a professional nutritionist. Analyze the food input and return ONLY a valid JSON object. No markdown, no explanation, no code blocks. Just raw JSON.
 
-입력: "${input}"
-사용자 정보: 체중 ${APP.user.weight}kg, ${APP.user.gender==='male'?'남성':'여성'}, ${APP.user.age}세
-목표: ${APP.goal?APP.goal.type==='DIET'?'다이어트 (칼로리 감량)':'벌크업 (근육 증량)':'없음'}
+Food input: "${input}"
+User: ${APP.user.weight}kg, ${APP.user.gender==='male'?'male':'female'}, ${APP.user.age} years old
+Goal: ${APP.goal?APP.goal.type==='DIET'?'diet (lose weight)':'bulk up (gain muscle)':'none'}
 
-분석 시 주의사항:
-- 입력된 양(스푼, 한줌, 인분 등)을 실제 그램으로 환산해서 계산하세요
-- 불명확한 양은 일반적인 1인분 기준으로 계산하세요
-- 모든 음식(패스트푸드, 한식, 양식 등)을 정확하게 분석하세요
+Rules:
+- Convert amounts (spoons, handfuls, pieces, etc.) to grams
+- If amount is unclear, use typical serving size
+- Analyze ALL foods mentioned, any cuisine type
+- Return ONLY this exact JSON structure with no other text:
 
-반드시 아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
-{"estimatedCalories":숫자,"estimatedProtein":소수,"estimatedCarbs":소수,"estimatedFat":소수,"foods":[{"name":"음식명","amount":"환산된 양","calories":숫자}],"summary":"한 줄 요약","advice":"목표에 맞는 짧은 조언"}`;
+{"estimatedCalories":number,"estimatedProtein":number,"estimatedCarbs":number,"estimatedFat":number,"foods":[{"name":"food name in Korean","amount":"amount in Korean","calories":number}],"summary":"one line summary in Korean","advice":"short advice in Korean based on user goal"}`;
     dietAnalysis=await callGemini(prompt);
     const d=dietAnalysis;
     res.innerHTML=`
@@ -502,20 +502,19 @@ async function analyzeWorkout(){
   res.className='ai-result show';
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 소모 칼로리를 분석 중이에요...</div>`;
   try{
-    const prompt=`당신은 전문 퍼스널 트레이너입니다. 사용자의 운동 기록을 분석해서 소모 칼로리를 계산해주세요.
+    const prompt=`You are a professional personal trainer. Analyze the workout and return ONLY a valid JSON object. No markdown, no explanation, no code blocks. Just raw JSON.
 
-입력: "${input}"
-사용자 정보: 체중 ${APP.user.weight}kg, ${APP.user.gender==='male'?'남성':'여성'}, ${APP.user.age}세
-목표: ${APP.goal?APP.goal.type==='DIET'?'다이어트':'벌크업':'없음'}
+Workout input: "${input}"
+User: ${APP.user.weight}kg, ${APP.user.gender==='male'?'male':'female'}, ${APP.user.age} years old
+Goal: ${APP.goal?APP.goal.type==='DIET'?'diet':'bulk up':'none'}
 
-분석 시 주의사항:
-- 웨이트 트레이닝은 무게(kg), 횟수(reps), 세트수를 모두 반영해서 정확하게 계산하세요
-- 유산소 운동은 시간과 강도를 반영하세요
-- 실제 운동 생리학 데이터를 기반으로 계산하세요
-- 사용자 체중을 반드시 반영하세요
+Rules:
+- For weight training: use weight(kg), reps, sets to calculate calories accurately
+- For cardio: use duration and intensity
+- Always factor in user body weight
+- Return ONLY this exact JSON structure with no other text:
 
-반드시 아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
-{"estimatedCalories":숫자,"workoutType":"근력운동|유산소|복합운동","muscleGroups":["부위1","부위2"],"duration":예상분,"intensity":"저강도|중강도|고강도","exercises":[{"name":"운동명","detail":"세트 정보","calories":숫자}],"summary":"한 줄 요약","advice":"짧은 조언"}`;
+{"estimatedCalories":number,"workoutType":"근력운동 or 유산소 or 복합운동","muscleGroups":["Korean muscle group names"],"duration":number,"intensity":"저강도 or 중강도 or 고강도","exercises":[{"name":"exercise name in Korean","detail":"sets/reps/weight details in Korean","calories":number}],"summary":"one line summary in Korean","advice":"short advice in Korean"}`;
     workoutAnalysis=await callGemini(prompt);
     const d=workoutAnalysis;
     res.innerHTML=`
