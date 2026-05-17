@@ -147,6 +147,12 @@ select option{background:var(--surface2);}
 .ring-label{font-size:13px;color:var(--text2);margin-top:2px;}
 .ring-days{font-size:12px;color:var(--text3);margin-top:6px;font-family:var(--fm);}
 
+/* SETTINGS PAGE */
+.settings-item{display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--surface2);border-radius:var(--r);margin-bottom:8px;border:1px solid var(--border);}
+.settings-item-left{display:flex;flex-direction:column;gap:3px;}
+.settings-item-label{font-size:14px;font-weight:500;}
+.settings-item-sub{font-size:11px;color:var(--text2);font-family:var(--fm);}
+
 /* MISC */
 .empty{text-align:center;padding:40px 20px;color:var(--text3);}
 .empty-icon{font-size:32px;margin-bottom:10px;}
@@ -343,27 +349,52 @@ select option{background:var(--surface2);}
     </div>
   </div>
 
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="page-title">설정</div>
+    <div class="page-sub">앱 정보 및 데이터 관리</div>
+    <div class="card">
+      <div class="card-title">프로필</div>
+      <div id="settings-profile" style="font-size:14px;color:var(--text2);line-height:2"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">데이터 관리</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-label">데이터 초기화</div>
+            <div class="settings-item-sub">모든 기록 및 설정이 삭제됩니다</div>
+          </div>
+          <button class="btn btn-danger" style="width:auto;padding:10px 16px;font-size:13px" onclick="resetApp()">초기화</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">앱 정보</div>
+      <div style="font-size:13px;color:var(--text2);line-height:2">
+        <div>버전: 1.0.0</div>
+        <div>AI: Gemini 2.5 Flash</div>
+        <div>데이터 저장: 브라우저 로컬스토리지</div>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /main -->
 
 <nav class="bnav">
-  <button class="bnav-btn active" onclick="showPage('dashboard')" id="bnav-dashboard"><div class="bnav-icon">📊</div>홈</button>
-  <button class="bnav-btn" onclick="showPage('diet')" id="bnav-diet"><div class="bnav-icon">🥗</div>식단</button>
-  <button class="bnav-btn" onclick="showPage('workout')" id="bnav-workout"><div class="bnav-icon">🏋️</div>운동</button>
-  <button class="bnav-btn" onclick="showPage('inbody')" id="bnav-inbody"><div class="bnav-icon">📋</div>인바디</button>
-  <button class="bnav-btn" onclick="showPage('analytics')" id="bnav-analytics"><div class="bnav-icon">📈</div>분석</button>
-  <button class="bnav-btn" onclick="showPage('goal')" id="bnav-goal"><div class="bnav-icon">🎯</div>목표</button>
-  <button class="bnav-btn" onclick="resetApp()" id="bnav-reset"><div class="bnav-icon">⚙️</div>초기화</button>
+  <button class="bnav-btn active" id="bnav-dashboard" onclick="showPage('dashboard')"><div class="bnav-icon">📊</div>홈</button>
+  <button class="bnav-btn" id="bnav-diet" onclick="showPage('diet')"><div class="bnav-icon">🥗</div>식단</button>
+  <button class="bnav-btn" id="bnav-workout" onclick="showPage('workout')"><div class="bnav-icon">🏋️</div>운동</button>
+  <button class="bnav-btn" id="bnav-inbody" onclick="showPage('inbody')"><div class="bnav-icon">📋</div>인바디</button>
+  <button class="bnav-btn" id="bnav-analytics" onclick="showPage('analytics')"><div class="bnav-icon">📈</div>분석</button>
+  <button class="bnav-btn" id="bnav-goal" onclick="showPage('goal')"><div class="bnav-icon">🎯</div>목표</button>
+  <button class="bnav-btn" id="bnav-settings" onclick="showPage('settings')"><div class="bnav-icon">⚙️</div>설정</button>
 </nav>
 </div><!-- /app -->
 
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════
-// ⚠️  API 키는 GitHub Actions가 빌드 시 자동 주입합니다
-//     소스코드에 절대 직접 입력하지 마세요!
-//     GitHub 저장소 → Settings → Secrets → GEMINI_API_KEY 에 등록
-// ══════════════════════════════════════════
 const GEMINI_URL = (key) => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
 
 // ── STATE ──
@@ -384,7 +415,7 @@ function resetApp(){
 // ── SETUP ──
 function startApp(){
   const orkey=document.getElementById('s-orkey').value.trim();
-  if(!orkey){showToast('OpenRouter API 키를 입력해주세요','error');return;}
+  if(!orkey){showToast('Gemini API 키를 입력해주세요','error');return;}
   localStorage.setItem('tracker_or_key',orkey);
   const name=document.getElementById('s-name').value.trim();
   if(!name){showToast('이름을 입력해주세요','error');return;}
@@ -403,48 +434,83 @@ function initApp(){
   ['diet-date','workout-date','ib-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
   document.getElementById('dash-greet').textContent=`안녕하세요, ${APP.user.name}님 👋`;
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
-  renderDashboard();renderDietLogs();renderWorkoutLogs();renderInbodyList();renderGoalPage();
+  renderDashboard();renderDietLogs();renderWorkoutLogs();renderInbodyList();renderGoalPage();renderSettingsProfile();
 }
 
 // ── NAV ──
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  const bn=document.getElementById('bnav-'+id);if(bn)bn.classList.add('active');
+  const page=document.getElementById('page-'+id);
+  if(page)page.classList.add('active');
+  const bn=document.getElementById('bnav-'+id);
+  if(bn)bn.classList.add('active');
   if(id==='analytics')renderAnalytics();
   if(id==='dashboard')renderDashboard();
   if(id==='goal')renderGoalPage();
+  if(id==='settings')renderSettingsProfile();
   window.scrollTo(0,0);
+}
+
+// ── GEMINI API ──
+// 강화된 JSON 파싱: 여러 방법을 순차적으로 시도
+function extractJSON(text){
+  if(!text)throw new Error('AI 응답이 비어있어요.');
+
+  const cleaned=text.trim();
+
+  // 1. 전체가 JSON인 경우
+  try{return JSON.parse(cleaned);}catch(e){}
+
+  // 2. ```json ... ``` 블록
+  const jsonBlock=cleaned.match(/```json\s*([\s\S]*?)```/i);
+  if(jsonBlock){try{return JSON.parse(jsonBlock[1].trim());}catch(e){}}
+
+  // 3. ``` ... ``` 블록 (타입 없이)
+  const codeBlock=cleaned.match(/```\s*([\s\S]*?)```/);
+  if(codeBlock){try{return JSON.parse(codeBlock[1].trim());}catch(e){}}
+
+  // 4. 첫 번째 { } 블록 추출 (중첩 괄호 고려)
+  const start=cleaned.indexOf('{');
+  if(start!==-1){
+    let depth=0,end=-1;
+    for(let i=start;i<cleaned.length;i++){
+      if(cleaned[i]==='{')depth++;
+      else if(cleaned[i]==='}'){depth--;if(depth===0){end=i;break;}}
+    }
+    if(end!==-1){
+      try{return JSON.parse(cleaned.slice(start,end+1));}catch(e){}
+    }
+  }
+
+  throw new Error('AI 응답을 파싱할 수 없어요. 다시 시도해주세요.');
 }
 
 async function callGemini(prompt){
   const key=localStorage.getItem('tracker_or_key')||'';
-  if(!key){throw new Error('API 키가 없어요. ⚙️ 초기화 후 다시 설정해주세요.');}
+  if(!key){throw new Error('API 키가 없어요. ⚙️ 설정 → 초기화 후 다시 설정해주세요.');}
+
+  // responseMimeType 없이 요청 (더 안정적)
   const res=await fetch(GEMINI_URL(key),{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature:0.3,maxOutputTokens:1000,responseMimeType:'application/json'}
+      generationConfig:{temperature:0.2,maxOutputTokens:1200}
     })
   });
+
   if(!res.ok){
-    const e=await res.json();
-    throw new Error(e.error?.message||`API 오류 (${res.status})`);
+    const e=await res.json().catch(()=>({}));
+    const msg=e.error?.message||'';
+    if(res.status===400)throw new Error('API 키가 유효하지 않아요. 설정에서 확인해주세요.');
+    if(res.status===429)throw new Error('요청 한도 초과예요. 잠시 후 다시 시도해주세요.');
+    throw new Error(msg||`API 오류 (${res.status})`);
   }
+
   const data=await res.json();
   const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-  if(!text)throw new Error('AI 응답이 비어있어요. 다시 시도해주세요.');
-  // JSON 추출 시도 1: 전체가 JSON인 경우
-  try{ return JSON.parse(text.trim()); }catch(e){}
-  // JSON 추출 시도 2: ```json 블록 안에 있는 경우
-  const block=text.match(/```json\s*([\s\S]*?)```/);
-  if(block){ try{ return JSON.parse(block[1].trim()); }catch(e){} }
-  // JSON 추출 시도 3: { } 블록 찾기
-  const jsonMatch=text.match(/\{[\s\S]*\}/);
-  if(jsonMatch){ return JSON.parse(jsonMatch[0]); }
-  throw new Error('AI 응답을 파싱할 수 없어요. 다시 시도해주세요.');
+  return extractJSON(text);
 }
 
 // ── DIET ANALYSIS ──
@@ -457,30 +523,26 @@ async function analyzeDiet(){
   res.className='ai-result show';
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 칼로리를 분석 중이에요...</div>`;
   try{
-    const prompt=`You are a professional nutritionist. Analyze the food input and return ONLY a valid JSON object. No markdown, no explanation, no code blocks. Just raw JSON.
+    const prompt=`You are a professional nutritionist. Analyze the food input below and respond with ONLY a raw JSON object. Do not include any markdown formatting, code blocks, backticks, or explanations. Start your response directly with { and end with }.
 
 Food input: "${input}"
-User: ${APP.user.weight}kg, ${APP.user.gender==='male'?'male':'female'}, ${APP.user.age} years old
-Goal: ${APP.goal?APP.goal.type==='DIET'?'diet (lose weight)':'bulk up (gain muscle)':'none'}
+User info: weight=${APP.user.weight}kg, gender=${APP.user.gender}, age=${APP.user.age}
+Goal: ${APP.goal?APP.goal.type==='DIET'?'diet/lose weight':'bulk up/gain muscle':'not set'}
 
-Rules:
-- Convert amounts (spoons, handfuls, pieces, etc.) to grams
-- If amount is unclear, use typical serving size
-- Analyze ALL foods mentioned, any cuisine type
-- Return ONLY this exact JSON structure with no other text:
+Required JSON format (respond ONLY with this, no other text):
+{"estimatedCalories":number,"estimatedProtein":number,"estimatedCarbs":number,"estimatedFat":number,"foods":[{"name":"Korean food name","amount":"Korean amount description","calories":number}],"summary":"한 줄 요약 (한국어)","advice":"목표에 맞는 짧은 조언 (한국어)"}`;
 
-{"estimatedCalories":number,"estimatedProtein":number,"estimatedCarbs":number,"estimatedFat":number,"foods":[{"name":"food name in Korean","amount":"amount in Korean","calories":number}],"summary":"one line summary in Korean","advice":"short advice in Korean based on user goal"}`;
     dietAnalysis=await callGemini(prompt);
     const d=dietAnalysis;
     res.innerHTML=`
       <div class="ai-tag">✦ AI 분석 완료</div>
-      <div class="ai-cal">${Math.round(d.estimatedCalories)}<span> kcal</span></div>
+      <div class="ai-cal">${Math.round(d.estimatedCalories||0)}<span> kcal</span></div>
       <div class="macro-row">
-        <div class="macro-pill"><div class="macro-label">탄수화물</div><div class="macro-val" style="color:var(--accent)">${(+d.estimatedCarbs).toFixed(1)}g</div></div>
-        <div class="macro-pill"><div class="macro-label">단백질</div><div class="macro-val" style="color:var(--blue)">${(+d.estimatedProtein).toFixed(1)}g</div></div>
-        <div class="macro-pill"><div class="macro-label">지방</div><div class="macro-val" style="color:var(--orange)">${(+d.estimatedFat).toFixed(1)}g</div></div>
+        <div class="macro-pill"><div class="macro-label">탄수화물</div><div class="macro-val" style="color:var(--accent)">${(+(d.estimatedCarbs||0)).toFixed(1)}g</div></div>
+        <div class="macro-pill"><div class="macro-label">단백질</div><div class="macro-val" style="color:var(--blue)">${(+(d.estimatedProtein||0)).toFixed(1)}g</div></div>
+        <div class="macro-pill"><div class="macro-label">지방</div><div class="macro-val" style="color:var(--orange)">${(+(d.estimatedFat||0)).toFixed(1)}g</div></div>
       </div>
-      ${d.foods&&d.foods.length?`<div class="food-detail">${d.foods.map(f=>`<div class="food-row"><span class="food-row-name">${f.name} ${f.amount||''}</span><span class="food-row-cal">${Math.round(f.calories||0)} kcal</span></div>`).join('')}</div>`:''}
+      ${d.foods&&d.foods.length?`<div class="food-detail">${d.foods.map(f=>`<div class="food-row"><span class="food-row-name">${f.name||''} ${f.amount||''}</span><span class="food-row-cal">${Math.round(f.calories||0)} kcal</span></div>`).join('')}</div>`:''}
       <div class="ai-tip">${d.summary||''}<br><span style="color:var(--accent)">💡 ${d.advice||''}</span></div>`;
     document.getElementById('diet-save-btn').style.display='block';
     showToast('분석 완료!','success');
@@ -502,30 +564,26 @@ async function analyzeWorkout(){
   res.className='ai-result show';
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 소모 칼로리를 분석 중이에요...</div>`;
   try{
-    const prompt=`You are a professional personal trainer. Analyze the workout and return ONLY a valid JSON object. No markdown, no explanation, no code blocks. Just raw JSON.
+    const prompt=`You are a professional personal trainer. Analyze the workout below and respond with ONLY a raw JSON object. Do not include any markdown formatting, code blocks, backticks, or explanations. Start your response directly with { and end with }.
 
 Workout input: "${input}"
-User: ${APP.user.weight}kg, ${APP.user.gender==='male'?'male':'female'}, ${APP.user.age} years old
-Goal: ${APP.goal?APP.goal.type==='DIET'?'diet':'bulk up':'none'}
+User info: weight=${APP.user.weight}kg, gender=${APP.user.gender}, age=${APP.user.age}
+Goal: ${APP.goal?APP.goal.type==='DIET'?'diet':'bulk up':'not set'}
 
-Rules:
-- For weight training: use weight(kg), reps, sets to calculate calories accurately
-- For cardio: use duration and intensity
-- Always factor in user body weight
-- Return ONLY this exact JSON structure with no other text:
+Required JSON format (respond ONLY with this, no other text):
+{"estimatedCalories":number,"workoutType":"근력운동 or 유산소 or 복합운동","muscleGroups":["한국어 근육 부위"],"duration":number,"intensity":"저강도 or 중강도 or 고강도","exercises":[{"name":"운동명 (한국어)","detail":"세트/횟수/무게 설명 (한국어)","calories":number}],"summary":"한 줄 요약 (한국어)","advice":"짧은 조언 (한국어)"}`;
 
-{"estimatedCalories":number,"workoutType":"근력운동 or 유산소 or 복합운동","muscleGroups":["Korean muscle group names"],"duration":number,"intensity":"저강도 or 중강도 or 고강도","exercises":[{"name":"exercise name in Korean","detail":"sets/reps/weight details in Korean","calories":number}],"summary":"one line summary in Korean","advice":"short advice in Korean"}`;
     workoutAnalysis=await callGemini(prompt);
     const d=workoutAnalysis;
     res.innerHTML=`
       <div class="ai-tag">✦ 소모 칼로리 계산</div>
-      <div class="ai-cal">${Math.round(d.estimatedCalories)}<span> kcal 소모</span></div>
+      <div class="ai-cal">${Math.round(d.estimatedCalories||0)}<span> kcal 소모</span></div>
       <div class="macro-row">
         <div class="macro-pill"><div class="macro-label">예상 시간</div><div class="macro-val">${d.duration||'?'}분</div></div>
         <div class="macro-pill"><div class="macro-label">강도</div><div class="macro-val" style="font-size:14px">${d.intensity||'?'}</div></div>
         <div class="macro-pill"><div class="macro-label">종류</div><div class="macro-val" style="font-size:13px">${d.workoutType||'?'}</div></div>
       </div>
-      ${d.exercises&&d.exercises.length?`<div class="food-detail">${d.exercises.map(e=>`<div class="food-row"><span class="food-row-name">${e.name} <span style="color:var(--text3)">${e.detail||''}</span></span><span class="food-row-cal" style="color:var(--blue)">${Math.round(e.calories||0)} kcal</span></div>`).join('')}</div>`:''}
+      ${d.exercises&&d.exercises.length?`<div class="food-detail">${d.exercises.map(e=>`<div class="food-row"><span class="food-row-name">${e.name||''} <span style="color:var(--text3)">${e.detail||''}</span></span><span class="food-row-cal" style="color:var(--blue)">${Math.round(e.calories||0)} kcal</span></div>`).join('')}</div>`:''}
       ${d.muscleGroups&&d.muscleGroups.length?`<div style="margin-top:8px">${d.muscleGroups.map(m=>`<span style="display:inline-block;font-size:11px;padding:3px 9px;border-radius:5px;background:var(--surface3);color:var(--text2);font-family:var(--fm);margin:2px">${m}</span>`).join('')}</div>`:''}
       <div class="ai-tip">${d.summary||''}<br><span style="color:var(--accent)">💡 ${d.advice||''}</span></div>`;
     document.getElementById('workout-save-btn').style.display='block';
@@ -542,7 +600,7 @@ Rules:
 function saveDiet(){
   if(!dietAnalysis)return;
   const d=dietAnalysis;
-  APP.dietLogs.unshift({id:Date.now(),date:document.getElementById('diet-date').value,mealType:document.getElementById('diet-meal-type').value,rawInput:document.getElementById('diet-input').value,estimatedCalories:Math.round(d.estimatedCalories),estimatedProtein:parseFloat((+d.estimatedProtein).toFixed(1)),estimatedCarbs:parseFloat((+d.estimatedCarbs).toFixed(1)),estimatedFat:parseFloat((+d.estimatedFat).toFixed(1)),savedAt:new Date().toISOString()});
+  APP.dietLogs.unshift({id:Date.now(),date:document.getElementById('diet-date').value,mealType:document.getElementById('diet-meal-type').value,rawInput:document.getElementById('diet-input').value,estimatedCalories:Math.round(d.estimatedCalories||0),estimatedProtein:parseFloat((+(d.estimatedProtein||0)).toFixed(1)),estimatedCarbs:parseFloat((+(d.estimatedCarbs||0)).toFixed(1)),estimatedFat:parseFloat((+(d.estimatedFat||0)).toFixed(1)),savedAt:new Date().toISOString()});
   save();dietAnalysis=null;
   document.getElementById('diet-input').value='';
   document.getElementById('diet-result').className='ai-result';
@@ -553,7 +611,7 @@ function saveDiet(){
 function saveWorkout(){
   if(!workoutAnalysis)return;
   const d=workoutAnalysis;
-  APP.workoutLogs.unshift({id:Date.now(),date:document.getElementById('workout-date').value,rawInput:document.getElementById('workout-input').value,estimatedCalories:Math.round(d.estimatedCalories),workoutType:d.workoutType,muscleGroups:d.muscleGroups,duration:d.duration,intensity:d.intensity,savedAt:new Date().toISOString()});
+  APP.workoutLogs.unshift({id:Date.now(),date:document.getElementById('workout-date').value,rawInput:document.getElementById('workout-input').value,estimatedCalories:Math.round(d.estimatedCalories||0),workoutType:d.workoutType,muscleGroups:d.muscleGroups,duration:d.duration,intensity:d.intensity,savedAt:new Date().toISOString()});
   save();workoutAnalysis=null;
   document.getElementById('workout-input').value='';
   document.getElementById('workout-result').className='ai-result';
@@ -660,6 +718,13 @@ function renderDashGoal(){
   const remain=Math.max(0,Math.round((end-now)/(1000*60*60*24)));
   const dl=g.durationWeeks<=3?g.durationWeeks+'주':g.durationWeeks===4?'1달':g.durationWeeks===8?'2달':g.durationWeeks===12?'3달':g.durationWeeks+'주';
   el.innerHTML=`<div class="ring-wrap"><svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8"/><circle cx="40" cy="40" r="32" fill="none" stroke="#c8f542" stroke-width="8" stroke-dasharray="${(2*Math.PI*32).toFixed(2)}" stroke-dashoffset="${(2*Math.PI*32*(1-pct/100)).toFixed(2)}" stroke-linecap="round"/></svg><div><div class="ring-pct">${pct}%</div><div class="ring-label">${g.type==='DIET'?'다이어트':'벌크업'} ${dl}</div><div class="ring-days">D-${remain} · ${new Date(g.endDate).toLocaleDateString('ko-KR')} 종료</div></div></div>`;
+}
+
+function renderSettingsProfile(){
+  const el=document.getElementById('settings-profile');
+  if(!el)return;
+  const u=APP.user;
+  el.innerHTML=`<div>이름: <b style="color:var(--text)">${u.name||'-'}</b></div><div>성별: <b style="color:var(--text)">${u.gender==='male'?'남성':'여성'}</b></div><div>키: <b style="color:var(--text)">${u.height||'-'} cm</b></div><div>체중: <b style="color:var(--text)">${u.weight||'-'} kg</b></div><div>나이: <b style="color:var(--text)">${u.age||'-'} 세</b></div>`;
 }
 
 // ── DELETE ──
