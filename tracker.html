@@ -360,8 +360,7 @@ select option{background:var(--surface2);}
 //     소스코드에 절대 직접 입력하지 마세요!
 //     GitHub 저장소 → Settings → Secrets → GEMINI_API_KEY 에 등록
 // ══════════════════════════════════════════
-const GEMINI_KEY = '__GEMINI_API_KEY__';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
+const OPENROUTER_KEY = '__OPENROUTER_API_KEY__';
 
 // ── STATE ──
 let APP={user:{},goal:null,dietLogs:[],workoutLogs:[],inbodyLogs:[]};
@@ -406,14 +405,21 @@ function showPage(id){
   window.scrollTo(0,0);
 }
 
-// ── GEMINI AI ──
+// ── OPENROUTER AI ──
 async function callGemini(prompt){
-  const res=await fetch(GEMINI_URL,{
+  const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${OPENROUTER_KEY}`,
+      'HTTP-Referer':'https://junanalyst.github.io/tracker',
+      'X-Title':'TRACKER'
+    },
     body:JSON.stringify({
-      contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature:0.3,maxOutputTokens:1000}
+      model:'meta-llama/llama-4-scout:free',
+      messages:[{role:'user',content:prompt}],
+      temperature:0.3,
+      max_tokens:1000
     })
   });
   if(!res.ok){
@@ -421,7 +427,7 @@ async function callGemini(prompt){
     throw new Error(e.error?.message||`API 오류 (${res.status})`);
   }
   const data=await res.json();
-  const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+  const text=data.choices?.[0]?.message?.content||'';
   const clean=text.replace(/```json|```/g,'').trim();
   return JSON.parse(clean);
 }
