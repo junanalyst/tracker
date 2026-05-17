@@ -42,11 +42,9 @@ jobs:
 
       - name: 🔑 API 키를 HTML에 안전하게 주입
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          # tracker.html 안의 플레이스홀더를 실제 키로 교체
-          # 키는 GitHub Secret에서만 오고, 소스코드에는 절대 없음
-          sed -i "s|__GEMINI_API_KEY__|${GEMINI_API_KEY}|g" tracker.html
+          sed -i "s|__OPENROUTER_API_KEY__|${OPENROUTER_API_KEY}|g" tracker.html
           echo "✅ API 키 주입 완료"
 
       - name: 📁 배포 폴더 준비
