@@ -512,19 +512,34 @@ async function callGemini(analyzePrompt, jsonSchema){
   const analysis=await geminiRaw(analyzePrompt, 0.5, 1500, false);
   if(!analysis)throw new Error('AI 응답이 없어요.');
 
-  // 2단계: JSON으로만 변환 (responseMimeType 강제)
-  const jsonPrompt=`Based on this nutritional/workout analysis, return a JSON object matching the schema exactly.
+  // 2단계: 분석결과를 JSON으로 변환 (responseMimeType 없이 - 호환성)
+  const jsonPrompt=`아래 분석 내용을 보고 JSON 형식으로만 답해줘. 다른 말은 하지 마. { 로 시작해서 } 로 끝내.
 
-Analysis:
+분석 내용:
 ${analysis}
 
-JSON Schema:
+반환할 JSON 형식:
 ${jsonSchema}
 
-Return only the JSON object with all fields filled in with numbers and strings. No explanation.`;
+중요: { 로 시작하는 JSON만 출력. 설명, 마크다운, 백틱 절대 금지.`;
 
-  const jsonText=await geminiRaw(jsonPrompt, 0.0, 800, true);
-  return extractJSON(jsonText);
+  const jsonText=await geminiRaw(jsonPrompt, 0.0, 800, false);
+  
+  // 실패 시 원인 표시용 디버그 정보 포함
+  try{
+    return extractJSON(jsonText);
+  }catch(e){
+    // 마지막 시도: 숫자만이라도 추출해서 기본 구조 반환
+    const calMatch=jsonText.match(/(\d{2,4})\s*(kcal|칼로리|cal)/i);
+    if(calMatch){
+      return {
+        estimatedCalories:parseInt(calMatch[1]),
+        estimatedProtein:0,estimatedCarbs:0,estimatedFat:0,
+        foods:[],summary:analysis.slice(0,100),advice:''
+      };
+    }
+    throw new Error(`파싱 실패. AI 원본: ${jsonText.slice(0,80)}...`);
+  }
 }
 
 // ── DIET ANALYSIS ──
