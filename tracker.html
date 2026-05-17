@@ -430,7 +430,7 @@ async function callGemini(prompt){
       'X-Title':'TRACKER'
     },
     body:JSON.stringify({
-      model:'openrouter/free',
+      model:'google/gemini-2.0-flash-exp:free',
       messages:[{role:'user',content:prompt}],
       temperature:0.3,
       max_tokens:1000
