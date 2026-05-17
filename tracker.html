@@ -486,40 +486,46 @@ function extractJSON(text){
   throw new Error('AI 응답을 파싱할 수 없어요. 다시 시도해주세요.');
 }
 
-async function callGemini(prompt, retry=0){
+async function geminiRaw(prompt, temperature=0.5, maxTokens=1500){
   const key=localStorage.getItem('tracker_or_key')||'';
-  if(!key){throw new Error('API 키가 없어요. ⚙️ 설정 → 초기화 후 다시 설정해주세요.');}
-
+  if(!key)throw new Error('API 키가 없어요. ⚙️ 설정 → 초기화 후 다시 설정해주세요.');
   const res=await fetch(GEMINI_URL(key),{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature:0.1,maxOutputTokens:1500}
+      generationConfig:{temperature,maxOutputTokens:maxTokens}
     })
   });
-
   if(!res.ok){
     const e=await res.json().catch(()=>({}));
     const msg=e.error?.message||'';
-    if(res.status===400)throw new Error('API 키가 유효하지 않아요. 설정에서 확인해주세요.');
+    if(res.status===400)throw new Error('API 키가 유효하지 않아요.');
     if(res.status===429)throw new Error('요청 한도 초과예요. 1~2분 후 다시 시도해주세요.');
     throw new Error(msg||`API 오류 (${res.status})`);
   }
-
   const data=await res.json();
-  const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+  return data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+}
 
-  try{
-    return extractJSON(text);
-  }catch(e){
-    // 파싱 실패 시 1회 재시도 (프롬프트에 더 강하게 명시)
-    if(retry<1){
-      const retryPrompt=prompt+'\n\nIMPORTANT: Your previous response could not be parsed. You MUST respond with ONLY a valid JSON object. No text before or after the JSON. Start immediately with { and end with }.';
-      return callGemini(retryPrompt, retry+1);
-    }
-    throw e;
-  }
+// 2단계 호출: 1단계(자유 분석) → 2단계(JSON 변환)
+async function callGemini(analyzePrompt, jsonSchema){
+  // 1단계: 형식 없이 자유롭게 분석
+  const analysis=await geminiRaw(analyzePrompt, 0.5, 1500);
+  if(!analysis)throw new Error('AI 응답이 없어요.');
+
+  // 2단계: 분석 결과를 JSON으로만 변환
+  const jsonPrompt=`Convert the following analysis result into a JSON object.
+Respond with ONLY the raw JSON. No markdown, no backticks, no explanation. Start with { end with }.
+
+Analysis:
+${analysis}
+
+Required JSON schema:
+${jsonSchema}`;
+
+  const jsonText=await geminiRaw(jsonPrompt, 0.0, 1000);
+  return extractJSON(jsonText);
 }
 
 // ── DIET ANALYSIS ──
@@ -532,22 +538,19 @@ async function analyzeDiet(){
   res.className='ai-result show';
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 칼로리를 분석 중이에요...</div>`;
   try{
-    const prompt=`You are an expert nutritionist AI. The user has written their meal in natural Korean or mixed language — accept ANY format, abbreviation, typo, fraction, or informal expression.
+    const analyzePrompt=`너는 전문 영양사야. 사용자가 먹은 음식을 분석해줘.
 
-User input: "${input}"
-User: ${APP.user.weight}kg, ${APP.user.gender==='male'?'male':'female'}, ${APP.user.age}yo
-Goal: ${APP.goal?APP.goal.type==='DIET'?'diet/lose weight':'bulk up/gain muscle':'none'}
+사용자 입력: "${input}"
+사용자 정보: 체중 ${APP.user.weight}kg, ${APP.user.gender==='male'?'남성':'여성'}, ${APP.user.age}세
+목표: ${APP.goal?APP.goal.type==='DIET'?'다이어트 (체지방 감소)':'벌크업 (근육 증가)':'없음'}
 
-Rules:
-- Accept ANY food description: fractions (1/3공기), handfuls (한줌), spoons (스푼), pieces (알, 개), informal names, brand names, mixed Korean/English
-- If amount is unclear, use a typical serving size — never fail due to ambiguous quantity
-- Estimate calories generously and accurately based on Korean food database
-- Always return all 4 macros even if estimated
-- CRITICAL: respond with ONLY raw JSON starting with { and ending with }, no markdown, no explanation
+어떤 형식으로 입력해도 다 이해해줘. 분수(1/3공기), 한줌, 스푼, 개, 알, 브랜드명, 줄임말, 오타, 한영 혼용 모두 OK.
+양이 애매하면 일반적인 1인분 기준으로 추정해.
+각 음식별 칼로리, 전체 칼로리, 탄수화물/단백질/지방(g), 목표에 맞는 조언을 자세히 분석해줘.`;
 
-{"estimatedCalories":number,"estimatedProtein":number,"estimatedCarbs":number,"estimatedFat":number,"foods":[{"name":"음식명","amount":"양 설명","calories":number}],"summary":"한 줄 요약","advice":"짧은 조언"}`;
+    const jsonSchema=`{"estimatedCalories":number,"estimatedProtein":number,"estimatedCarbs":number,"estimatedFat":number,"foods":[{"name":"음식명(한국어)","amount":"양 설명","calories":number}],"summary":"한 줄 요약(한국어)","advice":"목표에 맞는 짧은 조언(한국어)"}`;
 
-    dietAnalysis=await callGemini(prompt);
+    dietAnalysis=await callGemini(analyzePrompt, jsonSchema);
     const d=dietAnalysis;
     res.innerHTML=`
       <div class="ai-tag">✦ AI 분석 완료</div>
@@ -579,24 +582,25 @@ async function analyzeWorkout(){
   res.className='ai-result show';
   res.innerHTML=`<div class="ai-loading"><div class="spinner"></div> AI가 소모 칼로리를 분석 중이에요...</div>`;
   try{
-    const prompt=`You are an expert personal trainer AI. The user has written their workout in natural Korean or mixed format — accept ANY style, structure, or notation.
+    const analyzePrompt=`너는 전문 퍼스널 트레이너야. 사용자가 한 운동을 분석해줘.
 
-User input: "${input}"
-User: ${APP.user.weight}kg, ${APP.user.gender==='male'?'male':'female'}, ${APP.user.age}yo
-Goal: ${APP.goal?APP.goal.type==='DIET'?'diet':'bulk up':'none'}
+사용자 입력: "${input}"
+사용자 정보: 체중 ${APP.user.weight}kg, ${APP.user.gender==='male'?'남성':'여성'}, ${APP.user.age}세
+목표: ${APP.goal?APP.goal.type==='DIET'?'다이어트':'벌크업':'없음'}
 
-Rules:
-- Accept ANY workout format: multiple weights per exercise, pyramid sets, drop sets, supersets, cardio, stretching
-- Examples of valid inputs: "벤치 20kg 10회, 40kg 10회, 60kg 8회" / "숄더프레스 5set 20x30 30x18 40x8" / "런닝 30분 + 스쿼트 100kg 5x5"
-- Typos in reps (rpe→rep) or weights are fine — interpret generously
-- Calculate total calories burned based on all sets combined, user weight, and exercise intensity
-- For weight training: use MET values and total volume (sets × reps × weight)
-- Always fill in duration estimate even if not stated
-- CRITICAL: respond with ONLY raw JSON starting with { and ending with }, no markdown, no explanation
+어떤 형식으로 입력해도 다 이해해줘. 예시:
+- "벤치 20kg 10회, 40kg 10회, 60kg 8회" (무게별 세트)
+- "숄더프레스 5set 20x30 30x18 40x8" (피라미드 세트)
+- "런닝 30분 + 스쿼트 100kg 5x5" (유산소+근력 혼합)
+- 오타, 줄임말, 한영 혼용 모두 OK
+- rpe/rep 혼용, 세트수 생략 등 모두 이해해서 분석해줘
 
-{"estimatedCalories":number,"workoutType":"근력운동 or 유산소 or 복합운동","muscleGroups":["부위"],"duration":number,"intensity":"저강도 or 중강도 or 고강도","exercises":[{"name":"운동명","detail":"세트/횟수/무게 요약","calories":number}],"summary":"한 줄 요약","advice":"짧은 조언"}`;
+각 운동별 소모 칼로리, 총 소모 칼로리, 운동 부위, 강도, 총 시간을 분석해줘.
+근력운동은 총 볼륨(세트×횟수×무게)과 사용자 체중 기반으로 계산해.`;
 
-    workoutAnalysis=await callGemini(prompt);
+    const jsonSchema=`{"estimatedCalories":number,"workoutType":"근력운동 or 유산소 or 복합운동","muscleGroups":["부위(한국어)"],"duration":number,"intensity":"저강도 or 중강도 or 고강도","exercises":[{"name":"운동명(한국어)","detail":"세트/횟수/무게 요약","calories":number}],"summary":"한 줄 요약(한국어)","advice":"짧은 조언(한국어)"}`;
+
+    workoutAnalysis=await callGemini(analyzePrompt, jsonSchema);
     const d=workoutAnalysis;
     res.innerHTML=`
       <div class="ai-tag">✦ 소모 칼로리 계산</div>
