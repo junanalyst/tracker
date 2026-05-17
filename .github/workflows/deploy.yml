@@ -26,10 +26,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: API 키 주입
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          sed -i "s|__GEMINI_API_KEY__|${{ secrets.GEMINI_API_KEY }}|g" tracker.html
-          echo "키 주입 완료"
-          grep -o "AIza" tracker.html && echo "✅ 키 확인됨" || echo "❌ 키 없음"
+          sed -i "s|__OPENROUTER_API_KEY__|${OPENROUTER_API_KEY}|g" tracker.html
 
       - name: 배포 폴더 준비
         run: |
