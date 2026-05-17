@@ -37,8 +37,8 @@ body{background:var(--black);color:var(--text);font-family:var(--fb);font-size:1
 .main{padding:20px 16px 84px;}
 
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border2);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px);}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border:none;background:none;color:var(--text3);cursor:pointer;gap:3px;font-size:10px;font-family:var(--fb);}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border2);display:flex;z-index:1000;padding-bottom:env(safe-area-inset-bottom,0px);}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 4px 10px;border:none;background:none;color:var(--text3);cursor:pointer;gap:3px;font-size:10px;font-family:var(--fb);-webkit-tap-highlight-color:transparent;touch-action:manipulation;min-height:56px;}
 .bnav-btn.active{color:var(--accent);}
 .bnav-icon{font-size:20px;line-height:1;}
 
@@ -435,9 +435,16 @@ async function callGemini(prompt){
   }
   const data=await res.json();
   const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+  if(!text)throw new Error('AI 응답이 비어있어요. 다시 시도해주세요.');
+  // JSON 추출 시도 1: 전체가 JSON인 경우
+  try{ return JSON.parse(text.trim()); }catch(e){}
+  // JSON 추출 시도 2: ```json 블록 안에 있는 경우
+  const block=text.match(/```json\s*([\s\S]*?)```/);
+  if(block){ try{ return JSON.parse(block[1].trim()); }catch(e){} }
+  // JSON 추출 시도 3: { } 블록 찾기
   const jsonMatch=text.match(/\{[\s\S]*\}/);
-  if(!jsonMatch)throw new Error('AI 응답을 파싱할 수 없어요. 다시 시도해주세요.');
-  return JSON.parse(jsonMatch[0]);
+  if(jsonMatch){ return JSON.parse(jsonMatch[0]); }
+  throw new Error('AI 응답을 파싱할 수 없어요. 다시 시도해주세요.');
 }
 
 // ── DIET ANALYSIS ──
