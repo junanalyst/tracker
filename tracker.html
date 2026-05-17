@@ -486,7 +486,8 @@ async function analyzeDiet(){
     document.getElementById('diet-save-btn').style.display='block';
     showToast('분석 완료!','success');
   }catch(e){
-    res.innerHTML=`<div style="color:var(--red);font-size:13px;line-height:1.6">⚠️ 분석 실패: ${e.message}<br><span style="color:var(--text3)">API 키를 확인해주세요</span></div>`;
+    const msg=e.message||String(e);
+    res.innerHTML=`<div style="color:var(--red);font-size:13px;line-height:1.7">⚠️ 분석 실패: ${msg}</div>`;
     showToast('분석 실패','error');
   }
   btn.disabled=false;btn.textContent='🤖 AI 칼로리 분석';
@@ -532,7 +533,8 @@ async function analyzeWorkout(){
     document.getElementById('workout-save-btn').style.display='block';
     showToast('분석 완료!','success');
   }catch(e){
-    res.innerHTML=`<div style="color:var(--red);font-size:13px;line-height:1.6">⚠️ 분석 실패: ${e.message}<br><span style="color:var(--text3)">API 키를 확인해주세요</span></div>`;
+    const msg=e.message||String(e);
+    res.innerHTML=`<div style="color:var(--red);font-size:13px;line-height:1.7">⚠️ 분석 실패: ${msg}</div>`;
     showToast('분석 실패','error');
   }
   btn.disabled=false;btn.textContent='🤖 AI 소모 칼로리 분석';
