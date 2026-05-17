@@ -173,6 +173,9 @@ select option{background:var(--surface2);}
     </div>
     <div class="s-label">나이</div>
     <input class="s-input" id="s-age" type="number" placeholder="28" inputmode="numeric">
+    <div class="s-label" style="margin-top:4px">OpenRouter API 키</div>
+    <input class="s-input" id="s-orkey" type="password" placeholder="sk-or-...">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:13px;line-height:1.6">openrouter.ai → Keys에서 무료 발급 · 이 기기에만 저장됩니다</div>
     <button class="s-btn" onclick="startApp()">시작하기 →</button>
   </div>
 </div>
@@ -349,6 +352,7 @@ select option{background:var(--surface2);}
   <button class="bnav-btn" onclick="showPage('inbody')" id="bnav-inbody"><div class="bnav-icon">📋</div>인바디</button>
   <button class="bnav-btn" onclick="showPage('analytics')" id="bnav-analytics"><div class="bnav-icon">📈</div>분석</button>
   <button class="bnav-btn" onclick="showPage('goal')" id="bnav-goal"><div class="bnav-icon">🎯</div>목표</button>
+  <button class="bnav-btn" onclick="resetApp()" id="bnav-reset"><div class="bnav-icon">⚙️</div>초기화</button>
 </nav>
 </div><!-- /app -->
 
@@ -360,7 +364,7 @@ select option{background:var(--surface2);}
 //     소스코드에 절대 직접 입력하지 마세요!
 //     GitHub 저장소 → Settings → Secrets → GEMINI_API_KEY 에 등록
 // ══════════════════════════════════════════
-const OPENROUTER_KEY = '__OPENROUTER_API_KEY__';
+const OPENROUTER_KEY = localStorage.getItem('tracker_or_key')||'';
 
 // ── STATE ──
 let APP={user:{},goal:null,dietLogs:[],workoutLogs:[],inbodyLogs:[]};
@@ -370,9 +374,18 @@ let CH={};
 
 function save(){localStorage.setItem('tracker_v5',JSON.stringify(APP));}
 function load(){const d=localStorage.getItem('tracker_v5');if(d)APP=JSON.parse(d);}
+function resetApp(){
+  if(!confirm('모든 데이터와 로그인 정보가 삭제됩니다.\n계속할까요?'))return;
+  localStorage.removeItem('tracker_v5');
+  localStorage.removeItem('tracker_or_key');
+  location.reload();
+}
 
 // ── SETUP ──
 function startApp(){
+  const orkey=document.getElementById('s-orkey').value.trim();
+  if(!orkey){showToast('OpenRouter API 키를 입력해주세요','error');return;}
+  localStorage.setItem('tracker_or_key',orkey);
   const name=document.getElementById('s-name').value.trim();
   if(!name){showToast('이름을 입력해주세요','error');return;}
   APP.user={name,gender:document.getElementById('s-gender').value,
@@ -405,18 +418,19 @@ function showPage(id){
   window.scrollTo(0,0);
 }
 
-// ── OPENROUTER AI ──
 async function callGemini(prompt){
+  const key=localStorage.getItem('tracker_or_key')||'';
+  if(!key){throw new Error('API 키가 없어요. 앱을 재시작해서 키를 입력해주세요.');}
   const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
     method:'POST',
     headers:{
       'Content-Type':'application/json',
-      'Authorization':`Bearer ${OPENROUTER_KEY}`,
+      'Authorization':`Bearer ${key}`,
       'HTTP-Referer':'https://junanalyst.github.io/tracker',
       'X-Title':'TRACKER'
     },
     body:JSON.stringify({
-      model:'openrouter/auto',
+      model:'openrouter/free',
       messages:[{role:'user',content:prompt}],
       temperature:0.3,
       max_tokens:1000
